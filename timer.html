@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html>
+<head>
+<style>
+#swatch{
+	font-size: 150px; 
+	font-weight: bold;
+	color: #2A344A;
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    -webkit-transform: translate(-50%, -50%);
+    transform: translate(-50%, -50%);
+}​
+</style>
+<script src="http://ajax.googleapis.com/ajax/libs/jquery/1/jquery.min.js"></script>
+<script>
+ 
+
+var int, ms=0, s=0, m=0;
+var roundTimeMin = 0;
+var roundTimeSec = 60;
+var startTimer = true;
+var playTickSound = true;
+var tickSound = new Audio('ticktock.mp3');
+var shutupSound = new Audio('shutup.mp3');
+
+function lpad(s, l, c, t) {
+	s += "";
+	c = c || " ";
+	while(s.length < l)
+		s = c + s;
+	return t && s.length > l ? s.substr(0, l) : s;
+}
+
+function tick(startTime,timerElement){
+	var time = new Date().getTime(); 
+	var dif = time-startTime;
+	var dif2 = dif;
+		
+	roundTimeMs = (roundTimeMin * 60000) + (roundTimeSec * 1000);
+
+	m = lpad(Math.floor(dif2 / 60000), 2, "0"); dif2 %= 60000; 
+	s = lpad(Math.floor(dif2 / 1000), 2, "0"); dif2 %= 1000;
+	ms = lpad(Math.floor(dif2 / 10), 2, "0", true);
+		
+	if(dif >= roundTimeMs - 10000 && playTickSound) {
+		tickSound.play();
+		playTickSound = false;
+	} else if (dif >= roundTimeMs) {
+		shutupSound.play();
+		reset();
+		ms = "00"; // makes sure the millisecond counter is on '00' when the timer stops 
+	}
+		
+	timerElement.innerHTML = m+':'+s+'.'+ms; 
+}
+
+  
+function swatch(){
+	var startTime = new Date().getTime();
+	int = setInterval(tick.bind(this, startTime, document.querySelector("#swatch")),19);
+}
+
+function stopSound(sound) {
+	sound.pause();
+	sound.currentTime = 0;
+}
+
+function reset(){
+	clearInterval(int);
+	startTimer = true;
+	playTickSound = true;
+	stopSound(tickSound);
+}
+
+function initialize(){
+	stopSound(shutupSound);
+	reset();
+	swatch();
+	startTimer = false;
+}
+
+document.addEventListener('keydown', function( e ){
+	if(e.keyCode == 32) {
+		if(startTimer){
+			initialize();
+		}else{
+			reset();
+			//int=0;
+		}
+   }
+});
+</script>
+<meta charset=utf-8 />
+<title>Scrum Timer</title>
+</head>
+<body>
+  
+  
+  
+  <div id="swatch" >00:00.00</div>
+  
+  
+</body>
+</html>
